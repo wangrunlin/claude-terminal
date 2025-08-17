@@ -45,6 +45,10 @@ RUN . $NVM_DIR/nvm.sh && npm install -g @anthropic-ai/claude-code
 # 复制配置文件
 COPY .tmux.conf /root/.tmux.conf
 COPY .bashrc /root/.bashrc
+COPY .env.example /root/.env.example
+
+# 复制 Claude Code 配置
+COPY .claude /root/.claude
 
 # 设置工作目录
 WORKDIR /root
