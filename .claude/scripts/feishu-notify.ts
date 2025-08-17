@@ -11,12 +11,16 @@
  * echo '{"type": "notification", "message": "测试消息"}' | tsx feishu-notify.ts
  */
 
+import { stdin, env, exit } from 'node:process';
+
 interface HookData {
   type: string;
   message?: string;
   tool?: string;
   result?: any;
   error?: string;
+  hookType?: string;
+  toolName?: string;
   [key: string]: any;
 }
 
@@ -48,7 +52,7 @@ interface FeishuMessage {
 }
 
 async function sendFeishuNotification(data: HookData): Promise<void> {
-  const webhookUrl = process.env.FEISHU_WEBHOOK_URL;
+  const webhookUrl = env.FEISHU_WEBHOOK_URL;
   
   if (!webhookUrl) {
     console.log('⚠️  FEISHU_WEBHOOK_URL 未配置，跳过飞书通知');
@@ -84,21 +88,21 @@ async function sendFeishuNotification(data: HookData): Promise<void> {
   // 添加详细信息
   const fields: Array<{is_short: boolean; text: {content: string; tag: string}}> = [];
   
-  if (data.type) {
+  if (data.hookType || data.type) {
     fields.push({
       is_short: true,
       text: {
-        content: `**类型：**${data.type}`,
+        content: `**Hook类型：**${data.hookType || data.type}`,
         tag: 'lark_md'
       }
     });
   }
 
-  if (data.tool) {
+  if (data.toolName || data.tool) {
     fields.push({
       is_short: true,
       text: {
-        content: `**工具：**${data.tool}`,
+        content: `**工具：**${data.toolName || data.tool}`,
         tag: 'lark_md'
       }
     });
@@ -158,9 +162,9 @@ async function main(): Promise<void> {
   try {
     // 从 stdin 读取数据
     let input = '';
-    process.stdin.setEncoding('utf8');
+    stdin.setEncoding('utf8');
     
-    for await (const chunk of process.stdin) {
+    for await (const chunk of stdin) {
       input += chunk;
     }
 
@@ -169,18 +173,17 @@ async function main(): Promise<void> {
       return;
     }
 
+    console.log('🔍 Hook 输入数据:', input.trim());
     const data: HookData = JSON.parse(input.trim());
     await sendFeishuNotification(data);
   } catch (error) {
     console.error('❌ 处理输入数据失败:', error);
-    process.exit(1);
+    exit(1);
   }
 }
 
 // 直接执行时运行
-if (require.main === module) {
-  main().catch((error) => {
-    console.error('❌ 脚本执行失败:', error);
-    process.exit(1);
-  });
-}
+main().catch((error) => {
+  console.error('❌ 脚本执行失败:', error);
+  exit(1);
+});

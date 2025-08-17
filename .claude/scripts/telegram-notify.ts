@@ -12,18 +12,22 @@
  * echo '{"type": "notification", "message": "测试消息"}' | tsx telegram-notify.ts
  */
 
+import { stdin, env, exit } from 'node:process';
+
 interface HookData {
   type: string;
   message?: string;
   tool?: string;
   result?: any;
   error?: string;
+  hookType?: string;
+  toolName?: string;
   [key: string]: any;
 }
 
 async function sendTelegramNotification(data: HookData): Promise<void> {
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  const botToken = env.TELEGRAM_BOT_TOKEN;
+  const chatId = env.TELEGRAM_CHAT_ID;
   
   if (!botToken || !chatId) {
     console.log('⚠️  TELEGRAM_BOT_TOKEN 或 TELEGRAM_CHAT_ID 未配置，跳过 Telegram 通知');
@@ -34,11 +38,12 @@ async function sendTelegramNotification(data: HookData): Promise<void> {
   let messageText = `🤖 *Claude Code 通知*\n\n`;
   
   // 根据类型设置不同的图标
-  const typeIcon = data.type === 'notification' ? '🔔' : '⚡';
-  messageText += `${typeIcon} *类型:* ${data.type}\n`;
+  const hookType = data.hookType || data.type;
+  const typeIcon = hookType === 'Notification' ? '🔔' : '⚡';
+  messageText += `${typeIcon} *Hook类型:* ${hookType}\n`;
 
-  if (data.tool) {
-    messageText += `🔧 *工具:* \`${data.tool}\`\n`;
+  if (data.toolName || data.tool) {
+    messageText += `🔧 *工具:* \`${data.toolName || data.tool}\`\n`;
   }
 
   if (data.message) {
@@ -114,9 +119,9 @@ async function main(): Promise<void> {
   try {
     // 从 stdin 读取数据
     let input = '';
-    process.stdin.setEncoding('utf8');
+    stdin.setEncoding('utf8');
     
-    for await (const chunk of process.stdin) {
+    for await (const chunk of stdin) {
       input += chunk;
     }
 
@@ -125,18 +130,17 @@ async function main(): Promise<void> {
       return;
     }
 
+    console.log('🔍 Hook 输入数据:', input.trim());
     const data: HookData = JSON.parse(input.trim());
     await sendTelegramNotification(data);
   } catch (error) {
     console.error('❌ 处理输入数据失败:', error);
-    process.exit(1);
+    exit(1);
   }
 }
 
 // 直接执行时运行
-if (require.main === module) {
-  main().catch((error) => {
-    console.error('❌ 脚本执行失败:', error);
-    process.exit(1);
-  });
-}
+main().catch((error) => {
+  console.error('❌ 脚本执行失败:', error);
+  exit(1);
+});
