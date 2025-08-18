@@ -50,8 +50,14 @@ COPY .env.example /root/.env.example
 # 复制 Claude Code 配置
 COPY .claude /root/.claude
 
-# 设置工作目录
-WORKDIR /root
+# 创建持久化的 workspace 目录
+RUN mkdir -p /workspace
+
+# 设置工作目录为 workspace
+WORKDIR /workspace
+
+# 声明数据卷，提示 Docker 这个目录需要持久化
+VOLUME ["/workspace"]
 
 # 暴露端口（ttyd 默认使用 7681 端口）
 EXPOSE 7681
