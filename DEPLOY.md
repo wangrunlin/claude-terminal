@@ -1,6 +1,6 @@
 # Dokploy 部署指南
 
-本文档详细介绍如何在 Dokploy 上部署 Claude Terminal 项目。
+本文档详细介绍如何在 Dokploy 上部署 Claude Workspace Docker 项目。
 
 ## 部署前准备
 

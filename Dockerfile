@@ -47,8 +47,17 @@ COPY .tmux.conf /root/.tmux.conf
 COPY .bashrc /root/.bashrc
 COPY .env.example /root/.env.example
 
-# 复制 Claude Code 配置
-COPY .claude /root/.claude
+# 创建 Claude Code 企业管理目录和脚本目录
+RUN mkdir -p /etc/claude-code /opt/claude-scripts
+
+# 复制企业管理策略配置文件
+COPY docker-claude-config/managed-settings.json /etc/claude-code/managed-settings.json
+
+# 复制脚本到系统目录
+COPY docker-claude-config/scripts/ /opt/claude-scripts/
+
+# 设置脚本执行权限
+RUN chmod +x /opt/claude-scripts/*.ts
 
 # 创建持久化的 workspace 目录
 RUN mkdir -p /workspace
@@ -65,4 +74,4 @@ EXPOSE 7681
 # 容器启动时要执行的命令
 # 启动 ttyd，绑定到所有接口，并让它自动创建或附加到一个名为 "claude_session"的 tmux 会话
 # 添加 UTF-8 支持和更好的终端设置
-CMD ["ttyd", "-i", "0.0.0.0", "-p", "7681", "-t", "titleFixed=Claude Terminal", "-t", "fontSize=14", "tmux", "new", "-A", "-s", "claude_session"]
+CMD ["ttyd", "-i", "0.0.0.0", "-p", "7681", "-t", "titleFixed=Claude Workspace", "-t", "fontSize=14", "tmux", "new", "-A", "-s", "claude_session"]

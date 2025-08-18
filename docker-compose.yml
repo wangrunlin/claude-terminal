@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  claude-terminal:
+  claude-workspace:
     build: .
-    container_name: claude-terminal
+    container_name: claude-workspace
     ports:
       - "${PORT:-7681}:7681"
     volumes:
@@ -15,7 +15,7 @@ services:
       # Claude Code 相关环境变量
       - NODE_ENV=${NODE_ENV:-production}
     restart: unless-stopped
-    hostname: claude-terminal
+    hostname: claude-workspace
     # 健康检查，确保服务正常运行
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:7681"] 
@@ -25,7 +25,7 @@ services:
       start_period: 60s
     # 添加标签，便于 Dokploy 管理
     labels:
-      - "com.dokploy.project=claude-terminal"
+      - "com.dokploy.project=claude-workspace"
 
 # 定义命名卷，数据将存储在 Docker 管理的位置
 volumes:
@@ -35,9 +35,9 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${WORKSPACE_PATH:-/etc/dokploy/data/claude-terminal/workspace}
+      device: ${WORKSPACE_PATH:-/etc/dokploy/data/claude-workspace/workspace}
 
 # 网络配置（可选，Dokploy 会自动处理）
 networks:
   default:
-    name: claude-terminal-network
+    name: claude-workspace-network

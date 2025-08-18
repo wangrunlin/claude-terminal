@@ -6,12 +6,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "tsx $HOME/.claude/scripts/feishu-notify.ts",
+            "command": "tsx /opt/claude-scripts/feishu-notify.ts",
             "timeout": 10000
           },
           {
             "type": "command", 
-            "command": "tsx $HOME/.claude/scripts/telegram-notify.ts",
+            "command": "tsx /opt/claude-scripts/telegram-notify.ts",
             "timeout": 10000
           }
         ]
@@ -23,12 +23,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "tsx $HOME/.claude/scripts/feishu-notify.ts",
+            "command": "tsx /opt/claude-scripts/feishu-notify.ts",
             "timeout": 10000
           },
           {
             "type": "command",
-            "command": "tsx $HOME/.claude/scripts/telegram-notify.ts", 
+            "command": "tsx /opt/claude-scripts/telegram-notify.ts", 
             "timeout": 10000
           }
         ]
